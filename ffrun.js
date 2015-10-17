@@ -17,20 +17,18 @@ var processingQueue = async.queue(function (task, callback) {
         + ' -c:a alac '
         + argv.d + '\\' + generateUUID() + '.m4a';
 
-    console.log(cmd);
-    if (task.name.match(matcher)) {
 
-        exec(cmd, function (error, stdout, stderr) {
+    exec(cmd, function (error, stdout, stderr) {
 
-            if (stderr !== null) {
-                callback(stderr);
-            } else if (error !== null) {
-                callback(error);
-            } else {
-                callback();
-            }
-        });
-    }
+        if (stderr !== null) {
+            callback(stderr);
+        } else if (error !== null) {
+            callback(error);
+        } else {
+            callback();
+        }
+    });
+
 }, 2);
 
 // Windows?
@@ -72,9 +70,11 @@ var matcher = /flac$/
 
 walk(argv.s, function(filepath, rootdir, subdir, filename) {
 
-        processingQueue.push({name: filepath}, function (err) {
-            console.log('Failed on ', filepath);
-        })
+        if (filepath.match(matcher)) {
+            processingQueue.push({name: filepath}, function (err) {
+                console.log('Failed on ', filepath);
+            })
+        }
     }
 , '');
 
